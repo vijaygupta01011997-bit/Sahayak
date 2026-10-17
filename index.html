@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#FFE9F1">
+<title>Sahayak</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #FFE9F1;
+    --panel: #FFD3E4;
+    --ground: #F7B6CF;
+    --card: #FFF7FA;
+    --line: #F5C3D6;
+    --ink: #5E1238;
+    --petal-1: #C2185B;
+    --petal-2: #E8478B;
+    --petal-3: #F58AB0;
+    --smile: #138808;
+    --error: #B3123C;
+    --ok: #0F6B06;
+  }
+
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+
+  html, body {
+    margin: 0;
+    background: var(--bg);
+    font-family: 'Baloo 2', system-ui, sans-serif;
+    color: var(--ink);
+  }
+
+  /* ---------- 1) SPLASH ---------- */
+  .splash {
+    position: fixed; inset: 0; z-index: 10;
+    background: var(--bg);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    transition: opacity .6s ease, visibility .6s ease;
+  }
+  .ready .splash { opacity: 0; visibility: hidden; pointer-events: none; }
+  .splash svg { width: min(60vw, 280px); height: auto; overflow: visible; }
+
+  .petal {
+    stroke-width: 2; stroke-linejoin: round; stroke-dasharray: 1; fill-opacity: 0;
+    animation:
+      draw 1s ease-in-out var(--d) both,
+      fillin .6s ease-out calc(var(--d) + .8s) forwards;
+  }
+  .p1 { fill: var(--petal-1); stroke: var(--petal-1); }
+  .p2 { fill: var(--petal-2); stroke: var(--petal-2); }
+  .p3 { fill: var(--petal-3); stroke: var(--petal-3); }
+
+  .smile {
+    fill: none; stroke: var(--smile); stroke-width: 6; stroke-linecap: round; stroke-dasharray: 1;
+    animation: draw .9s ease-in-out 2.6s both;
+  }
+
+  @keyframes draw {
+    0%   { stroke-dashoffset: 1; opacity: 0; }
+    1%   { opacity: 1; }
+    100% { stroke-dashoffset: 0; opacity: 1; }
+  }
+  @keyframes fillin { to { fill-opacity: 1; } }
+
+  /* ---------- 2) WELCOME SCREEN ---------- */
+  .screen {
+    min-height: 100dvh; max-width: 430px; margin: 0 auto;
+    padding: 18px 20px 28px;
+    display: flex; flex-direction: column; gap: 14px;
+  }
+
+  .rise { opacity: 0; }
+  .ready .rise { animation: rise .7s ease-out var(--r, 0s) both; }
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: none; }
+  }
+
+  .top { display: flex; justify-content: flex-end; }
+  .flag {
+    width: 46px; height: 31px; border-radius: 6px; overflow: hidden;
+    border: 1.5px solid #fff; box-shadow: 0 2px 8px rgba(94, 18, 56, .18);
+  }
+  .flag svg { display: block; width: 100%; height: 100%; }
+
+  .hero {
+    background: var(--panel);
+    border-radius: 150px 150px 28px 28px;
+    overflow: hidden; display: flex; flex-direction: column;
+  }
+  .hero svg { display: block; width: 100%; height: auto; max-height: 34dvh; margin-top: 14px; }
+  .hero .cap {
+    background: var(--ground); text-align: center; padding: 6px 12px 8px;
+    font-weight: 700; font-size: 15px; letter-spacing: .02em;
+  }
+
+  .tiles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+  .tile {
+    margin: 0; background: var(--card); border: 1.5px solid var(--line);
+    border-radius: 18px; padding: 10px 6px 8px; text-align: center;
+  }
+  .tile svg { display: block; width: 100%; height: auto; }
+  .tile figcaption { margin-top: 4px; font-size: 13px; font-weight: 600; line-height: 1.15; }
+
+  .bottom {
+    margin-top: auto; padding-top: 10px;
+    display: flex; flex-direction: column; align-items: center; gap: 14px;
+  }
+  .brand { display: flex; align-items: center; gap: 10px; }
+  .brand svg { width: 40px; height: auto; display: block; }
+  .brand span { font-size: 22px; font-weight: 800; letter-spacing: .01em; line-height: 1; }
+
+  .cta {
+    width: 100%; max-width: 360px; height: 58px; border: 0; border-radius: 29px;
+    background: var(--petal-1); color: #fff;
+    font-family: inherit; font-size: 21px; font-weight: 700; letter-spacing: .04em;
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    cursor: pointer; box-shadow: 0 8px 20px rgba(194, 24, 91, .28);
+    transition: transform .15s ease, box-shadow .15s ease;
+  }
+  .cta:hover  { transform: translateY(-2px); box-shadow: 0 12px 24px rgba(194, 24, 91, .34); }
+  .cta:active { transform: translateY(0) scale(.98); }
+  .cta:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
+  .cta svg { width: 22px; height: 22px; }
+
+  /* ---------- 3) SIGN UP SCREEN ---------- */
+  .auth {
+    min-height: 100dvh; max-width: 430px; margin: 0 auto;
+    padding: 40px 22px 28px;
+    display: flex; flex-direction: column; align-items: center; gap: 16px; text-align: center;
+  }
+  .auth .logo svg { display: block; width: 140px; height: auto; overflow: visible; }
+  .auth h2 { margin: 6px 0 0; font-size: 30px; font-weight: 800; line-height: 1.1; }
+  .auth .sub { margin: 0 0 8px; font-size: 16px; font-weight: 500; color: #8E2A58; }
+
+  .options { width: 100%; display: flex; flex-direction: column; align-items: center; gap: 14px; }
+
+  .btn {
+    width: 100%; max-width: 360px; height: 56px; border-radius: 28px;
+    font-family: inherit; font-size: 18px; font-weight: 700; letter-spacing: .02em;
+    display: flex; align-items: center; justify-content: center; gap: 12px;
+    cursor: pointer; transition: transform .15s ease, box-shadow .15s ease;
+  }
+  .btn:hover:not(:disabled)  { transform: translateY(-2px); }
+  .btn:active:not(:disabled) { transform: scale(.98); }
+  .btn:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
+  .btn:disabled { opacity: .6; cursor: not-allowed; }
+  .btn svg { width: 22px; height: 22px; flex: none; }
+
+  .btn-google { background: #fff; color: var(--ink); border: 1.5px solid var(--line); box-shadow: 0 4px 12px rgba(94, 18, 56, .08); }
+  .btn-email  { background: var(--petal-1); color: #fff; border: 0; box-shadow: 0 8px 20px rgba(194, 24, 91, .28); }
+
+  .or { width: 100%; max-width: 360px; display: flex; align-items: center; gap: 12px; font-weight: 600; color: #8E2A58; }
+  .or::before, .or::after { content: ""; flex: 1; height: 1.5px; background: var(--line); }
+
+  .form { width: 100%; max-width: 360px; display: none; flex-direction: column; gap: 12px; text-align: left; }
+  .form.open { display: flex; }
+  .field { display: flex; flex-direction: column; gap: 4px; }
+  .field label { font-weight: 600; font-size: 14px; }
+  .field input {
+    height: 52px; border-radius: 16px; border: 1.5px solid var(--line); background: var(--card);
+    padding: 0 16px; font-family: inherit; font-size: 17px; color: var(--ink);
+  }
+  .field input:focus { outline: 3px solid var(--petal-2); outline-offset: 1px; border-color: var(--petal-2); }
+  .msg { min-height: 22px; margin: 0; font-weight: 600; font-size: 14px; color: var(--error); }
+  .msg.ok { color: var(--ok); }
+  .row { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  .link {
+    background: none; border: 0; padding: 4px 0; cursor: pointer;
+    font-family: inherit; font-size: 15px; font-weight: 700; color: var(--petal-1); text-decoration: underline;
+  }
+  .link:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+
+  .done { width: 100%; max-width: 360px; display: none; flex-direction: column; align-items: center; gap: 12px; }
+  .done.open { display: flex; }
+  .done svg { width: 56px; height: 56px; }
+  .done p { margin: 0; font-weight: 600; word-break: break-word; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .petal, .smile { animation: none; stroke-dashoffset: 0; fill-opacity: 1; opacity: 1; }
+    .rise { opacity: 1; }
+    .ready .rise { animation: none; }
+    .splash { transition: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ============ 1) SPLASH ============ -->
+<div class="splash" id="splash" aria-label="Sahayak">
+  <svg viewBox="8 22 104 92" role="img" aria-label="Sahayak kamal logo">
+    <ellipse class="petal p1" pathLength="1" style="--d:0s"   cx="60" cy="62" rx="10" ry="30" transform="rotate(-62 60 92)"/>
+    <ellipse class="petal p1" pathLength="1" style="--d:.3s"  cx="60" cy="62" rx="10" ry="30" transform="rotate(62 60 92)"/>
+    <ellipse class="petal p2" pathLength="1" style="--d:.6s"  cx="60" cy="62" rx="11" ry="32" transform="rotate(-31 60 92)"/>
+    <ellipse class="petal p2" pathLength="1" style="--d:.9s"  cx="60" cy="62" rx="11" ry="32" transform="rotate(31 60 92)"/>
+    <ellipse class="petal p3" pathLength="1" style="--d:1.2s" cx="60" cy="58" rx="12" ry="34"/>
+    <path class="smile" pathLength="1" d="M18 100 Q60 112 102 100"/>
+  </svg>
+</div>
+
+<!-- ============ 2) WELCOME SCREEN ============ -->
+<main class="screen" id="welcome">
+
+  <header class="top rise" style="--r:.05s">
+    <div class="flag" role="img" aria-label="India flag">
+      <svg viewBox="0 0 36 24" preserveAspectRatio="none">
+        <rect width="36" height="8" fill="#FF9933"/>
+        <rect y="8" width="36" height="8" fill="#FFFFFF"/>
+        <rect y="16" width="36" height="8" fill="#138808"/>
+        <circle cx="18" cy="12" r="3.3" fill="none" stroke="#000080" stroke-width=".5"/>
+        <circle cx="18" cy="12" r=".6" fill="#000080"/>
+        <g stroke="#000080" stroke-width=".25">
+          <line x1="18" y1="8.7" x2="18" y2="15.3"/>
+          <line x1="18" y1="8.7" x2="18" y2="15.3" transform="rotate(15 18 12)"/>
+          <line x1="18" y1="8.7" x2="18" y2="15.3" transform="rotate(30 18 12)"/>
+          <line x1="18" y1="8.7" x2="18" y2="15.3" transform="rotate(45 18 12)"/>
+          <line x1="18" y1="8.7" x2="18" y2="15.3" transform="rotate(60 18 12)"/>
+          <line x1="18" y1="8.7" x2="18" y2="15.3" transform="rotate(75 18 12)"/>
+          <line x1="18" y1="8.7" x2="18" y2="15.3" transform="rotate(90 18 12)"/>
+          <line x1="18" y1="8.7" x2="18" y2="15.3" transform="rotate(105 18 12)"/>
+          <line x1="18" y1="8.7" x2="18" y2="15.3" transform="rotate(120 18 12)"/>
+          <line x1="18" y1="8.7" x2="18" y2="15.3" transform="rotate(135 18 12)"/>
+          <line x1="18" y1="8.7" x2="18" y2="15.3" transform="rotate(150 18 12)"/>
+          <line x1="18" y1="8.7" x2="18" y2="15.3" transform="rotate(165 18 12)"/>
+        </g>
+      </svg>
+    </div>
+  </header>
+
+  <section class="hero rise" style="--r:.15s">
+    <svg viewBox="0 0 300 220" role="img" aria-label="India Gate, Delhi">
+      <circle cx="72" cy="58" r="22" fill="#FFF3F8"/>
+      <rect y="190" width="300" height="30" fill="#F7B6CF"/>
+      <polygon points="118,190 182,190 232,220 68,220" fill="#F9C3D8"/>
+      <circle cx="30"  cy="172" r="20" fill="#E8478B"/>
+      <circle cx="54"  cy="180" r="14" fill="#F58AB0"/>
+      <circle cx="270" cy="172" r="20" fill="#E8478B"/>
+      <circle cx="246" cy="180" r="14" fill="#F58AB0"/>
+      <rect x="66"  y="172" width="168" height="18" fill="#5E1238"/>
+      <rect x="76"  y="160" width="148" height="12" fill="#7A1E48"/>
+      <rect x="88"  y="72"  width="124" height="88" fill="#8E2A58"/>
+      <rect x="82"  y="60"  width="136" height="14" fill="#7A1E48"/>
+      <rect x="94"  y="50"  width="112" height="10" fill="#8E2A58"/>
+      <path d="M136 50 Q150 30 164 50 Z" fill="#5E1238"/>
+      <path d="M150 27 Q143 37 150 44 Q157 37 150 27 Z" fill="#FFB84D"/>
+      <rect x="100" y="64" width="100" height="3" fill="#A33566"/>
+      <rect x="98"  y="86" width="22" height="56" rx="2" fill="#A33566"/>
+      <rect x="180" y="86" width="22" height="56" rx="2" fill="#A33566"/>
+      <path d="M128 160 V112 A22 22 0 0 1 172 112 V160 Z" fill="#FFE9F1"/>
+      <path d="M136 160 V114 A14 14 0 0 1 164 114 V160 Z" fill="#F5C3D6"/>
+      <rect x="144" y="150" width="12" height="10" fill="#5E1238"/>
+      <path d="M150 139 Q145 146 150 150 Q155 146 150 139 Z" fill="#FFB84D"/>
+    </svg>
+    <div class="cap">India Gate, Delhi</div>
+  </section>
+
+  <section class="tiles" aria-label="Famous places of India">
+    <figure class="tile rise" style="--r:.3s">
+      <svg viewBox="0 0 120 100" role="img" aria-label="Taj Mahal">
+        <rect x="12" y="84" width="96" height="8" fill="#5E1238"/>
+        <rect x="35" y="54" width="50" height="30" fill="#8E2A58"/>
+        <path d="M45 54 C42 38 52 30 60 24 C68 30 78 38 75 54 Z" fill="#C2185B"/>
+        <rect x="59" y="12" width="2" height="13" fill="#5E1238"/>
+        <path d="M37 54 Q41 45 45 54 Z" fill="#7A1E48"/>
+        <path d="M75 54 Q79 45 83 54 Z" fill="#7A1E48"/>
+        <rect x="14" y="38" width="7" height="46" fill="#7A1E48"/>
+        <rect x="99" y="38" width="7" height="46" fill="#7A1E48"/>
+        <path d="M13 38 Q17.5 28 22 38 Z" fill="#5E1238"/>
+        <path d="M98 38 Q102.5 28 107 38 Z" fill="#5E1238"/>
+        <path d="M53 84 V66 A7 7 0 0 1 67 66 V84 Z" fill="#FFF7FA"/>
+      </svg>
+      <figcaption>Taj Mahal</figcaption>
+    </figure>
+
+    <figure class="tile rise" style="--r:.4s">
+      <svg viewBox="0 0 120 100" role="img" aria-label="Hawa Mahal">
+        <rect x="12" y="90" width="96" height="4" fill="#5E1238"/>
+        <rect x="20" y="64" width="80" height="26" fill="#C2185B"/>
+        <rect x="26" y="46" width="68" height="18" fill="#B01652"/>
+        <rect x="34" y="30" width="52" height="16" fill="#C2185B"/>
+        <rect x="44" y="16" width="32" height="14" fill="#B01652"/>
+        <path d="M44 16 Q48 8 52 16 Z" fill="#5E1238"/>
+        <path d="M68 16 Q72 8 76 16 Z" fill="#5E1238"/>
+        <path d="M54 16 Q60 4 66 16 Z" fill="#5E1238"/>
+        <g fill="#FFF7FA">
+          <rect x="28" y="72" width="5" height="8"/><rect x="40" y="72" width="5" height="8"/>
+          <rect x="52" y="72" width="5" height="8"/><rect x="64" y="72" width="5" height="8"/>
+          <rect x="76" y="72" width="5" height="8"/><rect x="88" y="72" width="5" height="8"/>
+          <rect x="33" y="51" width="5" height="8"/><rect x="45" y="51" width="5" height="8"/>
+          <rect x="57" y="51" width="5" height="8"/><rect x="69" y="51" width="5" height="8"/>
+          <rect x="81" y="51" width="5" height="8"/>
+          <rect x="41" y="34" width="5" height="7"/><rect x="53" y="34" width="5" height="7"/>
+          <rect x="65" y="34" width="5" height="7"/><rect x="77" y="34" width="5" height="7"/>
+          <rect x="52" y="20" width="5" height="6"/><rect x="63" y="20" width="5" height="6"/>
+        </g>
+      </svg>
+      <figcaption>Hawa Mahal</figcaption>
+    </figure>
+
+    <figure class="tile rise" style="--r:.5s">
+      <svg viewBox="0 0 120 100" role="img" aria-label="Gateway of India">
+        <rect x="14" y="90" width="92" height="4" fill="#5E1238"/>
+        <rect x="24" y="40" width="72" height="50" fill="#8E2A58"/>
+        <rect x="20" y="34" width="80" height="8" fill="#7A1E48"/>
+        <rect x="22" y="22" width="10" height="12" fill="#7A1E48"/>
+        <rect x="88" y="22" width="10" height="12" fill="#7A1E48"/>
+        <rect x="38" y="24" width="8" height="10" fill="#7A1E48"/>
+        <rect x="74" y="24" width="8" height="10" fill="#7A1E48"/>
+        <path d="M22 22 Q27 12 32 22 Z" fill="#5E1238"/>
+        <path d="M88 22 Q93 12 98 22 Z" fill="#5E1238"/>
+        <path d="M38 24 Q42 16 46 24 Z" fill="#5E1238"/>
+        <path d="M74 24 Q78 16 82 24 Z" fill="#5E1238"/>
+        <path d="M49 34 Q60 12 71 34 Z" fill="#C2185B"/>
+        <path d="M49 90 V62 A11 11 0 0 1 71 62 V90 Z" fill="#FFF7FA"/>
+        <path d="M30 90 V76 A6 6 0 0 1 42 76 V90 Z" fill="#FFF7FA"/>
+        <path d="M78 90 V76 A6 6 0 0 1 90 76 V90 Z" fill="#FFF7FA"/>
+        <path d="M8 97 q8-5 16 0 t16 0 t16 0 t16 0 t16 0 t16 0" fill="none" stroke="#F58AB0" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      <figcaption>Gateway of India</figcaption>
+    </figure>
+  </section>
+
+  <footer class="bottom rise" style="--r:.65s">
+    <div class="brand">
+      <svg viewBox="8 22 104 92" aria-hidden="true">
+        <ellipse cx="60" cy="62" rx="10" ry="30" fill="#C2185B" transform="rotate(-62 60 92)"/>
+        <ellipse cx="60" cy="62" rx="10" ry="30" fill="#C2185B" transform="rotate(62 60 92)"/>
+        <ellipse cx="60" cy="62" rx="11" ry="32" fill="#E8478B" transform="rotate(-31 60 92)"/>
+        <ellipse cx="60" cy="62" rx="11" ry="32" fill="#E8478B" transform="rotate(31 60 92)"/>
+        <ellipse cx="60" cy="58" rx="12" ry="34" fill="#F58AB0"/>
+        <path d="M18 100 Q60 112 102 100" fill="none" stroke="#138808" stroke-width="6" stroke-linecap="round"/>
+      </svg>
+      <span>Sahayak</span>
+    </div>
+    <button class="cta" type="button" id="start">
+      Get Started
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M5 12h14M13 6l6 6-6 6"/>
+      </svg>
+    </button>
+  </footer>
+</main>
+
+<!-- ============ 3) SIGN UP SCREEN ============ -->
+<main class="auth" id="auth" hidden>
+
+  <div class="logo">
+    <svg viewBox="8 22 104 92" role="img" aria-label="Sahayak kamal logo">
+      <ellipse class="petal p1" pathLength="1" style="--d:0s"  cx="60" cy="62" rx="10" ry="30" transform="rotate(-62 60 92)"/>
+      <ellipse class="petal p1" pathLength="1" style="--d:.2s" cx="60" cy="62" rx="10" ry="30" transform="rotate(62 60 92)"/>
+      <ellipse class="petal p2" pathLength="1" style="--d:.4s" cx="60" cy="62" rx="11" ry="32" transform="rotate(-31 60 92)"/>
+      <ellipse class="petal p2" pathLength="1" style="--d:.6s" cx="60" cy="62" rx="11" ry="32" transform="rotate(31 60 92)"/>
+      <ellipse class="petal p3" pathLength="1" style="--d:.8s" cx="60" cy="58" rx="12" ry="34"/>
+      <path class="smile" pathLength="1" style="animation-delay:1.7s" d="M18 100 Q60 112 102 100"/>
+    </svg>
+  </div>
+
+  <h2 class="rise" style="--r:.3s">Sahayak mein swagat hai</h2>
+  <p class="sub rise" style="--r:.4s" id="subtitle">Apna account banayiye aur shuru kijiye</p>
+
+  <div class="options" id="options">
+
+    <button class="btn btn-google rise" style="--r:.5s" type="button" id="googleBtn">
+      <svg viewBox="0 0 18 18" aria-hidden="true">
+        <path fill="#4285F4" d="M17.64 9.2045c0-.6381-.0573-1.2518-.1636-1.8409H9v3.4814h4.8436c-.2086 1.125-.8427 2.0782-1.7959 2.7164v2.2581h2.9087c1.7018-1.5668 2.6836-3.874 2.6836-6.615z"/>
+        <path fill="#34A853" d="M9 18c2.43 0 4.4673-.806 5.9564-2.1805l-2.9087-2.2581c-.8059.54-1.8368.859-3.0477.859-2.344 0-4.3282-1.5831-5.036-3.7104H.9574v2.3318C2.4382 15.9832 5.4818 18 9 18z"/>
+        <path fill="#FBBC05" d="M3.964 10.71c-.18-.54-.2822-1.1168-.2822-1.71s.1023-1.17.2823-1.71V4.9582H.9573A8.9965 8.9965 0 0 0 0 9c0 1.4523.3477 2.8268.9573 4.0418L3.964 10.71z"/>
+        <path fill="#EA4335" d="M9 3.5795c1.3214 0 2.5077.4541 3.4405 1.346l2.5813-2.5814C13.4632.8918 11.426 0 9 0 5.4818 0 2.4382 2.0168.9573 4.9582L3.964 7.29C4.6718 5.1627 6.6559 3.5795 9 3.5795z"/>
+      </svg>
+      Sign up with Google
+    </button>
+
+    <p class="msg" id="googleMsg" role="alert" aria-live="polite" style="text-align:center; max-width:360px"></p>
+
+    <div class="or rise" style="--r:.55s">ya</div>
+
+    <button class="btn btn-email rise" style="--r:.6s" type="button" id="emailBtn" aria-expanded="false" aria-controls="emailForm">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <rect x="3" y="5" width="18" height="14" rx="3"/>
+        <path d="M3.5 7l8.5 6 8.5-6"/>
+      </svg>
+      Continue with email
+    </button>
+
+    <form class="form" id="emailForm" novalidate>
+      <div class="field">
+        <label for="email">Email</label>
+        <input id="email" type="email" inputmode="email" autocomplete="email" placeholder="aap@example.com" required>
+      </div>
+      <div class="field">
+        <label for="password">Password (kam se kam 6 akshar)</label>
+        <input id="password" type="password" autocomplete="new-password" placeholder="••••••••" minlength="6" required>
+      </div>
+      <p class="msg" id="emailMsg" role="alert" aria-live="polite"></p>
+      <button class="btn btn-email" type="submit" id="submitBtn" style="max-width:none">Sign up</button>
+      <div class="row">
+        <button class="link" type="button" id="modeBtn">Pehle se account hai? Log in</button>
+        <button class="link" type="button" id="forgotBtn" hidden>Password bhool gaye?</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="done" id="done">
+    <svg viewBox="0 0 56 56" fill="none" aria-hidden="true">
+      <circle cx="28" cy="28" r="26" fill="#C2185B"/>
+      <path d="M17 29l8 8 14-16" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <h2 style="margin:0">Swagat hai!</h2>
+    <p id="who"></p>
+    <button class="btn btn-google" type="button" id="signOutBtn">Sign out</button>
+  </div>
+</main>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+  import { getAnalytics, isSupported } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-analytics.js";
+  import {
+    getAuth, GoogleAuthProvider,
+    signInWithPopup, signInWithRedirect, getRedirectResult,
+    createUserWithEmailAndPassword, signInWithEmailAndPassword,
+    sendPasswordResetEmail, onAuthStateChanged, signOut
+  } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+
+  // ---------- Firebase ----------
+  // Firebase Hosting (.web.app) par chalaye toh login usi domain se hota hai
+  const host = location.hostname;
+  const ownDomain = /\.(web\.app|firebaseapp\.com)$/.test(host);
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBR8sLlgOr-UPfLVjk_6GwbRc_cURjJuvg",
+    authDomain: ownDomain ? host : "shivani-electric-co.firebaseapp.com",
+    databaseURL: "https://shivani-electric-co-default-rtdb.firebaseio.com",
+    projectId: "shivani-electric-co",
+    storageBucket: "shivani-electric-co.firebasestorage.app",
+    messagingSenderId: "665738950959",
+    appId: "1:665738950959:web:0a6e4c99f153f5587109da",
+    measurementId: "G-G2QC29DJBM"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  isSupported().then(ok => { if (ok) getAnalytics(app); }).catch(() => {});
+  const auth = getAuth(app);
+  auth.languageCode = "hi";
+
+  // ---------- helpers ----------
+  const $ = id => document.getElementById(id);
+
+  const messages = {
+    "auth/email-already-in-use": "Is email se account pehle se bana hai. Log in kijiye.",
+    "auth/invalid-email": "Email sahi nahi lag raha. Dobara check kijiye.",
+    "auth/weak-password": "Password kam se kam 6 akshar ka rakhiye.",
+    "auth/missing-password": "Password likhiye.",
+    "auth/invalid-credential": "Email ya password galat hai.",
+    "auth/user-not-found": "Is email se koi account nahi mila.",
+    "auth/wrong-password": "Password galat hai.",
+    "auth/too-many-requests": "Bahut zyada koshish ho gayi. Thodi der baad try kijiye.",
+    "auth/network-request-failed": "Internet check kijiye aur dobara try kijiye.",
+    "auth/popup-closed-by-user": "Google window band ho gayi. Dobara try kijiye.",
+    "auth/cancelled-popup-request": "",
+    "auth/popup-blocked": "Browser ne popup block kiya. Popup allow kijiye.",
+    "auth/unauthorized-domain": "Yeh domain Firebase mein authorized nahi hai. Firebase console > Authentication > Settings > Authorized domains mein add kijiye.",
+    "auth/operation-not-allowed": "Firebase console > Authentication > Sign-in method mein yeh method enable kijiye.",
+    "auth/operation-not-supported-in-this-environment": "Yeh page https ya localhost link par kholiye (file se nahi)."
+  };
+  const friendly = e => (e && e.code in messages) ? messages[e.code] : "Kuch gadbad ho gayi. Dobara try kijiye.";
+
+  const isWebPage = location.protocol === "https:" || host === "localhost" || host === "127.0.0.1";
+  const FILE_MSG = "Yeh page file se khula hai. Sign in ke liye ise https link (GitHub Pages / Firebase Hosting) ya localhost par kholiye.";
+  const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+  const isWebView = /; wv\)/.test(navigator.userAgent);
+
+  const welcome = $("welcome"), authScreen = $("auth");
+  const emailBtn = $("emailBtn"), emailForm = $("emailForm");
+  const googleBtn = $("googleBtn"), submitBtn = $("submitBtn");
+  const modeBtn = $("modeBtn"), forgotBtn = $("forgotBtn");
+  const emailMsg = $("emailMsg"), googleMsg = $("googleMsg");
+  const emailInput = $("email"), passwordInput = $("password");
+
+  let mode = "signup";
+  const setBusy = on => { [googleBtn, emailBtn, submitBtn].forEach(b => b.disabled = on); };
+  const say = (el, text, ok = false) => { el.textContent = text; el.classList.toggle("ok", ok); };
+
+  function setMode(m) {
+    mode = m;
+    const signup = m === "signup";
+    submitBtn.textContent = signup ? "Sign up" : "Log in";
+    modeBtn.textContent = signup ? "Pehle se account hai? Log in" : "Naya account banayein";
+    forgotBtn.hidden = signup;
+    passwordInput.autocomplete = signup ? "new-password" : "current-password";
+    $("subtitle").textContent = signup ? "Apna account banayiye aur shuru kijiye" : "Wapas aane par swagat hai";
+    say(emailMsg, "");
+  }
+
+  // ---------- splash -> welcome -> sign up ----------
+  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const show = () => document.body.classList.add("ready");
+  const timer = setTimeout(show, reduce ? 800 : 4300);
+  $("splash").addEventListener("click", () => { clearTimeout(timer); show(); });
+
+  $("start").addEventListener("click", () => {
+    welcome.hidden = true;
+    authScreen.hidden = false;
+    window.scrollTo(0, 0);
+  });
+
+  // ---------- Google ----------
+  googleBtn.addEventListener("click", async () => {
+    say(googleMsg, "");
+    if (!isWebPage) { say(googleMsg, FILE_MSG); return; }
+    if (isWebView) {
+      say(googleMsg, "Google login is preview mein nahi chalta. Email se try kijiye, ya Chrome mein https link kholiye.");
+      return;
+    }
+
+    setBusy(true);
+    const provider = new GoogleAuthProvider();
+    provider.setCustomParameters({ prompt: "select_account" });
+
+    try {
+      if (isMobile && ownDomain) {
+        await signInWithRedirect(auth, provider);   // Firebase Hosting par mobile redirect
+        return;
+      }
+      await signInWithPopup(auth, provider);         // baaki sab jagah popup
+    } catch (e) {
+      if (e.code === "auth/popup-blocked" || e.code === "auth/operation-not-supported-in-this-environment") {
+        try { await signInWithRedirect(auth, provider); return; }
+        catch (e2) { say(googleMsg, friendly(e2)); }
+      } else {
+        say(googleMsg, friendly(e));
+      }
+    } finally {
+      setBusy(false);
+    }
+  });
+
+  if (isWebPage) {
+    getRedirectResult(auth).catch(e => {
+      authScreen.hidden = false; welcome.hidden = true;
+      say(googleMsg, friendly(e));
+    });
+  }
+
+  // ---------- Email ----------
+  emailBtn.addEventListener("click", () => {
+    const open = !emailForm.classList.contains("open");
+    emailForm.classList.toggle("open", open);
+    emailBtn.setAttribute("aria-expanded", String(open));
+    if (open) emailInput.focus();
+  });
+
+  modeBtn.addEventListener("click", () => setMode(mode === "signup" ? "login" : "signup"));
+
+  emailForm.addEventListener("submit", async (ev) => {
+    ev.preventDefault();
+    say(emailMsg, "");
+    if (!isWebPage) { say(emailMsg, FILE_MSG); return; }
+
+    const email = emailInput.value.trim();
+    const password = passwordInput.value;
+    if (!email) { say(emailMsg, "Email likhiye."); return; }
+    if (!password) { say(emailMsg, "Password likhiye."); return; }
+
+    setBusy(true);
+    try {
+      if (mode === "signup") await createUserWithEmailAndPassword(auth, email, password);
+      else await signInWithEmailAndPassword(auth, email, password);
+    } catch (e) {
+      say(emailMsg, friendly(e));
+    } finally {
+      setBusy(false);
+    }
+  });
+
+  forgotBtn.addEventListener("click", async () => {
+    const email = emailInput.value.trim();
+    if (!email) { say(emailMsg, "Pehle upar email likhiye."); return; }
+    try {
+      await sendPasswordResetEmail(auth, email);
+      say(emailMsg, "Password reset ka link email par bhej diya.", true);
+    } catch (e) {
+      say(emailMsg, friendly(e));
+    }
+  });
+
+  // ---------- login state ----------
+  onAuthStateChanged(auth, (user) => {
+    const done = $("done"), options = $("options");
+    if (user) {
+      welcome.hidden = true;
+      authScreen.hidden = false;
+      $("who").textContent = user.displayName ? user.displayName + " (" + user.email + ")" : user.email;
+      options.hidden = true;
+      done.classList.add("open");
+      $("subtitle").hidden = true;
+    } else {
+      options.hidden = false;
+      done.classList.remove("open");
+      $("subtitle").hidden = false;
+    }
+  });
+
+  $("signOutBtn").addEventListener("click", () => signOut(auth));
+</script>
+
+</body>
+</html>
